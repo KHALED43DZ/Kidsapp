@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids AI App</title>
+<link rel="manifest" href="manifest.json">
+</head>
+<body>
+<h2>صانع الحكايات</h2>
+<input id="apiKey" placeholder="API KEY">
+<textarea id="idea"></textarea>
+<button onclick="go()">ابدأ</button>
+<script>
+if ('serviceWorker' in navigator) {
+ navigator.serviceWorker.register('sw.js');
+}
+function go(){ alert("جاهز"); }
+</script>
+</body>
+</html>
