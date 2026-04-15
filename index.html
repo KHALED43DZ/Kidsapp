@@ -2,20 +2,1917 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kids AI App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AI Kids Cartoon Studio</title>
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07071a;
+  --surface: #0f0f2e;
+  --surface2: #141438;
+  --surface3: #1a1a4a;
+  --accent: #ff6b35;
+  --accent2: #ffd23f;
+  --accent3: #06ffa5;
+  --purple: #a855f7;
+  --blue: #3b82f6;
+  --pink: #ec4899;
+  --text: #f0f0ff;
+  --text2: #a0a0cc;
+  --text3: #6060aa;
+  --border: rgba(168,85,247,0.2);
+  --glow: rgba(168,85,247,0.15);
+  --r: 16px;
+  --r2: 24px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Starfield background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(168,85,247,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255,107,53,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(6,255,165,0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating stars */
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  animation: twinkle var(--d, 3s) ease-in-out infinite var(--delay, 0s);
+}
+@keyframes twinkle {
+  0%,100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.5); }
+}
+
+/* ===================== LAYOUT ===================== */
+.app { position: relative; z-index: 1; }
+
+/* ===================== HEADER ===================== */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(7,7,26,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #a855f7, #ff6b35);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(168,85,247,0.4);
+}
+.logo-text { line-height: 1.2; }
+.logo-text strong { font-size: 14px; font-weight: 800; color: var(--text); display: block; }
+.logo-text span { font-size: 10px; color: var(--purple); font-weight: 500; }
+
+.header-actions { display: flex; gap: 8px; }
+.btn-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+.btn-icon:hover { border-color: var(--purple); color: var(--purple); }
+
+/* ===================== NAV TABS ===================== */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px 0;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 10px 10px 0 0;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 2px solid transparent;
+}
+.tab-btn.active {
+  color: var(--purple);
+  border-bottom-color: var(--purple);
+  background: rgba(168,85,247,0.05);
+}
+.tab-btn .badge {
+  background: var(--accent);
+  color: white;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* ===================== PAGES ===================== */
+.page { display: none; padding: 16px; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===================== SECTIONS ===================== */
+.section {
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+/* ===================== CARDS ===================== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(168,85,247,0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ===================== INPUTS ===================== */
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+.field label span { color: var(--accent); }
+
+.input, .textarea, .select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.input:focus, .textarea:focus, .select:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(168,85,247,0.1);
+}
+.input::placeholder, .textarea::placeholder { color: var(--text3); }
+.textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.select { appearance: none; cursor: pointer; }
+.select option { background: var(--surface2); }
+
+/* ===================== CHOICE GRID ===================== */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.choice-grid.col3 { grid-template-columns: repeat(3, 1fr); }
+
+.choice-btn {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  color: var(--text2);
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.choice-btn .icon { font-size: 20px; line-height: 1; }
+.choice-btn:hover { border-color: var(--purple); color: var(--text); }
+.choice-btn.selected {
+  border-color: var(--purple);
+  background: rgba(168,85,247,0.12);
+  color: var(--text);
+  box-shadow: 0 0 12px rgba(168,85,247,0.15);
+}
+
+/* ===================== RANGE SLIDER ===================== */
+.range-field { margin-bottom: 14px; }
+.range-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.range-header label { font-size: 12px; font-weight: 600; color: var(--text2); }
+.range-val {
+  background: var(--purple);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  min-width: 40px;
+  text-align: center;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface3);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--accent));
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(168,85,247,0.5);
+}
+
+/* ===================== FILE UPLOAD ===================== */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--r2);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--purple);
+  background: rgba(168,85,247,0.05);
+}
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-icon { font-size: 32px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; color: var(--text2); }
+.upload-text strong { color: var(--purple); }
+.upload-previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.preview-img {
+  width: 64px; height: 64px; border-radius: 8px;
+  object-fit: cover; border: 2px solid var(--border);
+}
+
+/* ===================== GENERATE BTN ===================== */
+.btn-generate {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #a855f7, #ff6b35);
+  border: none;
+  border-radius: var(--r2);
+  color: white;
+  font-family: 'Cairo', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 24px rgba(168,85,247,0.35);
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.btn-generate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.4s;
+}
+.btn-generate:hover::before { transform: translateX(100%); }
+.btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(168,85,247,0.5); }
+.btn-generate:active { transform: translateY(0); }
+.btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ===================== PROGRESS ===================== */
+.progress-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(7,7,26,0.92);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.progress-overlay.active { display: flex; }
+
+.progress-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 24px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.progress-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.progress-anim {
+  font-size: 56px;
+  animation: bounce 1s ease-in-out infinite;
+  display: block;
+  margin-bottom: 12px;
+}
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+.progress-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.progress-sub { font-size: 13px; color: var(--text2); }
+
+.progress-steps { margin-bottom: 20px; }
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.step-item:last-child { border-bottom: none; }
+
+.step-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.step-item.done .step-icon { background: rgba(6,255,165,0.15); border-color: var(--accent3); }
+.step-item.active .step-icon { background: rgba(168,85,247,0.2); border-color: var(--purple); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.4); } 50% { box-shadow: 0 0 0 6px rgba(168,85,247,0); } }
+
+.step-info { flex: 1; }
+.step-name { font-size: 13px; font-weight: 600; }
+.step-detail { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.step-status { font-size: 11px; }
+.step-item.done .step-status { color: var(--accent3); }
+.step-item.active .step-status { color: var(--purple); }
+
+.progress-bar-wrap {
+  background: var(--surface2);
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--accent));
+  border-radius: 10px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(168,85,247,0.5);
+}
+.progress-pct { text-align: center; font-size: 13px; color: var(--text2); }
+
+/* ===================== RESULTS PAGE ===================== */
+.episode-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.episode-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid transparent;
+}
+.episode-header:hover { background: rgba(168,85,247,0.05); }
+.episode-header.open { border-bottom-color: var(--border); }
+
+.ep-num {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--purple), var(--accent));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800;
+  flex-shrink: 0;
+}
+.ep-info { flex: 1; }
+.ep-title { font-size: 14px; font-weight: 700; }
+.ep-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.ep-chevron { transition: transform 0.3s; color: var(--text3); }
+.ep-chevron.open { transform: rotate(180deg); }
+
+.episode-body { display: none; padding: 16px; }
+.episode-body.open { display: block; animation: fadeIn 0.2s ease; }
+
+/* Scenes */
+.scenes-grid { display: grid; gap: 10px; margin-bottom: 14px; }
+.scene-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.scene-img-wrap {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--surface3);
+  position: relative;
+  overflow: hidden;
+}
+.scene-img-wrap.portrait { aspect-ratio: 9/16; }
+.scene-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.scene-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; color: var(--text3); font-size: 12px;
+}
+.scene-img-placeholder .ph-icon { font-size: 28px; }
+.scene-img-gen {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  background: rgba(7,7,26,0.8);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px; font-weight: 600; color: var(--purple);
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.scene-content { padding: 10px 12px; }
+.scene-num { font-size: 10px; color: var(--purple); font-weight: 700; margin-bottom: 4px; }
+.scene-text { font-size: 12px; color: var(--text2); line-height: 1.7; }
+.scene-dialogue {
+  margin-top: 8px;
+  background: rgba(168,85,247,0.07);
+  border-right: 3px solid var(--purple);
+  border-radius: 0 8px 8px 0;
+  padding: 8px 10px;
+}
+.scene-char { font-size: 11px; font-weight: 700; color: var(--accent2); margin-bottom: 3px; }
+.scene-line { font-size: 13px; color: var(--text); line-height: 1.8; direction: rtl; }
+
+/* Script view */
+.script-block {
+  background: var(--surface2);
+  border-radius: var(--r);
+  padding: 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--text2);
+  direction: rtl;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.script-block::-webkit-scrollbar { width: 4px; }
+.script-block::-webkit-scrollbar-track { background: transparent; }
+.script-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Characters */
+.chars-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.char-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px;
+  text-align: center;
+}
+.char-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  margin: 0 auto 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  border: 2px solid var(--border);
+}
+.char-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.char-desc { font-size: 11px; color: var(--text3); line-height: 1.5; }
+
+/* Voice text */
+.voice-block {
+  background: var(--surface2);
+  border-radius: var(--r);
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.voice-play {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--purple);
+  border: none;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.voice-text-content { flex: 1; font-size: 14px; line-height: 2; direction: rtl; }
+
+/* Export buttons */
+.export-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.btn-export {
+  padding: 10px 8px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  transition: all 0.2s;
+}
+.btn-export .icon { font-size: 20px; }
+.btn-export:hover { border-color: var(--accent3); color: var(--accent3); }
+.btn-export.primary {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(6,255,165,0.1), rgba(6,255,165,0.05));
+  border-color: var(--accent3);
+  color: var(--accent3);
+  flex-direction: row; justify-content: center;
+  padding: 12px;
+  font-size: 14px;
+}
+
+/* ===================== SETTINGS PAGE ===================== */
+.api-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.api-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.api-name { font-size: 13px; font-weight: 700; }
+.api-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.api-badge.free { background: rgba(6,255,165,0.15); color: var(--accent3); }
+.api-badge.paid { background: rgba(255,107,53,0.15); color: var(--accent); }
+.api-badge.required { background: rgba(168,85,247,0.2); color: var(--purple); }
+
+.api-desc { font-size: 11px; color: var(--text3); margin-bottom: 10px; line-height: 1.5; }
+
+.input-group { position: relative; }
+.input-group .input { padding-left: 36px; direction: ltr; font-size: 12px; }
+.input-group .eye-btn {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.test-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.test-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+.test-btn.testing { color: var(--purple); border-color: var(--purple); }
+.test-btn.ok { color: var(--accent3); border-color: var(--accent3); }
+.test-btn.fail { color: var(--accent); border-color: var(--accent); }
+
+/* ===================== TOAST ===================== */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+.toast {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  animation: toastIn 0.3s ease;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.success { border-color: var(--accent3); color: var(--accent3); }
+.toast.error { border-color: var(--accent); color: var(--accent); }
+.toast.info { border-color: var(--purple); color: var(--purple); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===================== EMPTY STATE ===================== */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text3);
+}
+.empty-state .es-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state .es-title { font-size: 18px; font-weight: 700; color: var(--text2); margin-bottom: 8px; }
+.empty-state .es-desc { font-size: 13px; line-height: 1.7; }
+
+/* ===================== TOGGLE ===================== */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.toggle-info { flex: 1; }
+.toggle-info .t-name { font-size: 13px; font-weight: 600; }
+.toggle-info .t-desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--surface3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 3px; top: 3px;
+  background: var(--text3);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.toggle input:checked + .toggle-slider { background: var(--purple); }
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+  background: white;
+}
+
+/* ===================== QUEUE INDICATOR ===================== */
+.queue-badge {
+  position: fixed;
+  top: 70px;
+  left: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent2);
+  display: none;
+  align-items: center; gap: 6px;
+  z-index: 50;
+  animation: fadeIn 0.3s;
+}
+.queue-badge.show { display: flex; }
+.queue-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: pulse 1s infinite; }
+
+/* ===================== CHARS PAGE ===================== */
+.char-full-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 14px;
+}
+.char-full-avatar {
+  width: 72px; height: 72px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+}
+.char-full-info { flex: 1; }
+.char-full-name { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.char-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.char-tag {
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10px;
+  color: var(--purple);
+}
+.char-full-desc { font-size: 12px; color: var(--text2); line-height: 1.7; }
+.char-prompt-label { font-size: 10px; color: var(--text3); margin-top: 8px; margin-bottom: 4px; font-weight: 600; }
+.char-prompt-text {
+  font-size: 11px;
+  color: var(--text3);
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 8px;
+  direction: ltr;
+  line-height: 1.6;
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+
+/* Responsive */
+@media (min-width: 480px) {
+  .choice-grid { grid-template-columns: repeat(3, 1fr); }
+  .scenes-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
 </head>
 <body>
-<h2>صانع الحكايات</h2>
-<input id="apiKey" placeholder="API KEY">
-<textarea id="idea"></textarea>
-<button onclick="go()">ابدأ</button>
+
+<!-- Stars bg -->
+<div class="stars" id="stars"></div>
+
+<div class="app">
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🎬</div>
+    <div class="logo-text">
+      <strong>AI Cartoon Studio</strong>
+      <span>استوديو الكرتون الذكي</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div id="queueBadge" class="queue-badge">
+      <div class="queue-dot"></div>
+      <span id="queueText">في الانتظار</span>
+    </div>
+    <button class="btn-icon" onclick="showPage('settings')" title="الإعدادات">⚙️</button>
+  </div>
+</header>
+
+<!-- Nav Tabs -->
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="showPage('studio')" data-page="studio">🎨 الاستوديو</button>
+  <button class="tab-btn" onclick="showPage('results')" data-page="results">📦 النتائج <span class="badge" id="epBadge" style="display:none">0</span></button>
+  <button class="tab-btn" onclick="showPage('characters')" data-page="characters">👤 الشخصيات</button>
+  <button class="tab-btn" onclick="showPage('settings')" data-page="settings">⚙️ الإعدادات</button>
+</nav>
+
+<!-- ===================== STUDIO PAGE ===================== -->
+<div class="page active" id="page-studio">
+
+  <!-- Story Idea -->
+  <div class="section">
+    <div class="section-title">✍️ فكرة المسلسل</div>
+    <div class="card">
+      <div class="field">
+        <label>الفكرة الرئيسية <span>*</span></label>
+        <textarea class="textarea" id="storyIdea" placeholder="اكتب فكرة مسلسلك هنا... مثال: قصة طفل صغير يكتشف حديقة سحرية مخفية تحت منزله، وينبغي له إنقاذها من الشرير الذي يريد تدميرها..." rows="4"></textarea>
+      </div>
+      <div class="field">
+        <label>اسم المسلسل</label>
+        <input type="text" class="input" id="seriesName" placeholder="مثال: حديقة السحر">
+      </div>
+    </div>
+  </div>
+
+  <!-- Reference Images -->
+  <div class="section">
+    <div class="section-title">🖼️ صور مرجعية</div>
+    <div class="card">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="refImages" multiple accept="image/*" onchange="handleImageUpload(event)">
+        <div class="upload-icon">📎</div>
+        <div class="upload-text">اسحب صور الشخصيات أو البيئة<br><strong>اضغط للاختيار</strong></div>
+      </div>
+      <div class="upload-previews" id="uploadPreviews"></div>
+    </div>
+  </div>
+
+  <!-- Content Type -->
+  <div class="section">
+    <div class="section-title">🎭 نوع المحتوى</div>
+    <div class="choice-grid col3" id="contentTypeGrid">
+      <button class="choice-btn selected" data-val="تربوي" onclick="selectChoice(this, 'contentType')">
+        <span class="icon">📚</span><span>تربوي</span>
+      </button>
+      <button class="choice-btn" data-val="تشويقي" onclick="selectChoice(this, 'contentType')">
+        <span class="icon">🔍</span><span>تشويقي</span>
+      </button>
+      <button class="choice-btn" data-val="ترفيهي" onclick="selectChoice(this, 'contentType')">
+        <span class="icon">🎉</span><span>ترفيهي</span>
+      </button>
+      <button class="choice-btn" data-val="حماسي" onclick="selectChoice(this, 'contentType')">
+        <span class="icon">⚡</span><span>حماسي</span>
+      </button>
+      <button class="choice-btn" data-val="مغامرات" onclick="selectChoice(this, 'contentType')">
+        <span class="icon">🗺️</span><span>مغامرات</span>
+      </button>
+      <button class="choice-btn" data-val="كوميدي" onclick="selectChoice(this, 'contentType')">
+        <span class="icon">😂</span><span>كوميدي</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Age Group -->
+  <div class="section">
+    <div class="section-title">👶 الفئة العمرية</div>
+    <div class="choice-grid" id="ageGroupGrid">
+      <button class="choice-btn selected" data-val="2-4 سنوات" onclick="selectChoice(this, 'ageGroup')">
+        <span class="icon">🍼</span><span>2-4 سنوات</span>
+      </button>
+      <button class="choice-btn" data-val="4-7 سنوات" onclick="selectChoice(this, 'ageGroup')">
+        <span class="icon">🧒</span><span>4-7 سنوات</span>
+      </button>
+      <button class="choice-btn" data-val="7-10 سنوات" onclick="selectChoice(this, 'ageGroup')">
+        <span class="icon">👦</span><span>7-10 سنوات</span>
+      </button>
+      <button class="choice-btn" data-val="10-14 سنوات" onclick="selectChoice(this, 'ageGroup')">
+        <span class="icon">🧑</span><span>10-14 سنوات</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Drawing Style -->
+  <div class="section">
+    <div class="section-title">🎨 أسلوب الرسم</div>
+    <div class="choice-grid" id="drawingStyleGrid">
+      <button class="choice-btn selected" data-val="2D cartoon, flat design, vibrant colors" onclick="selectChoice(this, 'drawingStyle')">
+        <span class="icon">✏️</span><span>2D كلاسيك</span>
+      </button>
+      <button class="choice-btn" data-val="3D animation, CGI, Pixar style" onclick="selectChoice(this, 'drawingStyle')">
+        <span class="icon">🎮</span><span>3D بيكسار</span>
+      </button>
+      <button class="choice-btn" data-val="anime style, manga inspired, Japanese animation" onclick="selectChoice(this, 'drawingStyle')">
+        <span class="icon">⛩️</span><span>أنيمي</span>
+      </button>
+      <button class="choice-btn" data-val="watercolor cartoon, soft pastel colors, storybook illustration" onclick="selectChoice(this, 'drawingStyle')">
+        <span class="icon">🎨</span><span>ألوان مائية</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Video Format -->
+  <div class="section">
+    <div class="section-title">📐 أبعاد الفيديو</div>
+    <div class="choice-grid" id="aspectRatioGrid">
+      <button class="choice-btn" data-val="9:16" onclick="selectChoice(this, 'aspectRatio')">
+        <span class="icon">📱</span><span>9:16 عمودي</span><span style="font-size:10px;color:var(--purple)">Shorts / TikTok</span>
+      </button>
+      <button class="choice-btn selected" data-val="16:9" onclick="selectChoice(this, 'aspectRatio')">
+        <span class="icon">🖥️</span><span>16:9 أفقي</span><span style="font-size:10px;color:var(--purple)">YouTube</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Production Settings -->
+  <div class="section">
+    <div class="section-title">🎞️ إعدادات الإنتاج</div>
+    <div class="card">
+      <div class="range-field">
+        <div class="range-header">
+          <label>عدد الحلقات 📌</label>
+          <div class="range-val" id="epCountVal">3</div>
+        </div>
+        <input type="range" id="epCount" min="1" max="12" value="3" oninput="updateRange('epCount', 'epCountVal', v => v + ' حلقة')">
+      </div>
+      <div class="range-field">
+        <div class="range-header">
+          <label>مدة كل حلقة ⏱️</label>
+          <div class="range-val" id="epDurVal">3 دق</div>
+        </div>
+        <input type="range" id="epDuration" min="1" max="15" value="3" oninput="updateRange('epDuration', 'epDurVal', v => v + ' دق')">
+      </div>
+      <div class="range-field">
+        <div class="range-header">
+          <label>عدد المشاهد لكل حلقة 🎬</label>
+          <div class="range-val" id="scenesPerEpVal">تلقائي</div>
+        </div>
+        <input type="range" id="scenesPerEp" min="0" max="10" value="0" oninput="updateRange('scenesPerEp', 'scenesPerEpVal', v => v==0 ? 'تلقائي' : v+' مشاهد')">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>اللغة</label>
+        <select class="select" id="language">
+          <option value="ar">العربية 🇩🇿🇸🇦</option>
+          <option value="fr">الفرنسية 🇫🇷</option>
+          <option value="en">الإنجليزية 🇺🇸</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Button -->
+  <button class="btn-generate" id="generateBtn" onclick="startGeneration()">
+    <span>🚀</span>
+    <span>توليد حزمة الإنتاج</span>
+  </button>
+  <div style="height: 24px;"></div>
+</div>
+
+<!-- ===================== RESULTS PAGE ===================== -->
+<div class="page" id="page-results">
+  <div id="resultsContent">
+    <div class="empty-state">
+      <div class="es-icon">🎬</div>
+      <div class="es-title">لا توجد نتائج بعد</div>
+      <div class="es-desc">اذهب إلى الاستوديو وأدخل فكرتك<br>ثم اضغط "توليد حزمة الإنتاج"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CHARACTERS PAGE ===================== -->
+<div class="page" id="page-characters">
+  <div id="charsContent">
+    <div class="empty-state">
+      <div class="es-icon">👤</div>
+      <div class="es-title">لا توجد شخصيات بعد</div>
+      <div class="es-desc">سيتم استخراج الشخصيات تلقائياً<br>بعد توليد السيناريو</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SETTINGS PAGE ===================== -->
+<div class="page" id="page-settings">
+
+  <div class="section">
+    <div class="section-title">🔑 مفاتيح API</div>
+    <div class="api-item">
+      <div class="api-header">
+        <div class="api-name">Anthropic Claude</div>
+        <div class="api-badge required">مطلوب</div>
+      </div>
+      <div class="api-desc">لتوليد السيناريو والشخصيات والحوارات. يتطلب اشتراكاً مدفوعاً.</div>
+      <div class="input-group">
+        <input type="password" class="input" id="apiAnthropic" placeholder="sk-ant-api03-..." oninput="saveApiKey('anthropic', this.value)">
+        <button class="eye-btn" onclick="toggleVisibility('apiAnthropic')">👁️</button>
+      </div>
+      <button class="test-btn" onclick="testApi('anthropic')">🔌 اختبار الاتصال</button>
+    </div>
+
+    <div class="api-item">
+      <div class="api-header">
+        <div class="api-name">Hugging Face (صور مجانية)</div>
+        <div class="api-badge free">مجاني</div>
+      </div>
+      <div class="api-desc">لتوليد صور المشاهد. يستخدم FLUX.1-schnell مجاناً مع تأخير بسيط.</div>
+      <div class="input-group">
+        <input type="password" class="input" id="apiHuggingFace" placeholder="hf_..." oninput="saveApiKey('huggingface', this.value)">
+        <button class="eye-btn" onclick="toggleVisibility('apiHuggingFace')">👁️</button>
+      </div>
+      <button class="test-btn" onclick="testApi('huggingface')">🔌 اختبار الاتصال</button>
+    </div>
+
+    <div class="api-item">
+      <div class="api-header">
+        <div class="api-name">OpenAI (DALL-E 3)</div>
+        <div class="api-badge paid">مدفوع</div>
+      </div>
+      <div class="api-desc">بديل مدفوع لجودة صور أعلى. يُستخدم تلقائياً إذا فشل Hugging Face.</div>
+      <div class="input-group">
+        <input type="password" class="input" id="apiOpenAI" placeholder="sk-..." oninput="saveApiKey('openai', this.value)">
+        <button class="eye-btn" onclick="toggleVisibility('apiOpenAI')">👁️</button>
+      </div>
+      <button class="test-btn" onclick="testApi('openai')">🔌 اختبار الاتصال</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">⚙️ إعدادات الأداء</div>
+    <div class="card">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="t-name">توليد الصور تلقائياً</div>
+          <div class="t-desc">توليد صور المشاهد مباشرة (قد يبطئ)</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="autoImages" checked onchange="saveSetting('autoImages', this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="t-name">وضع التوفير</div>
+          <div class="t-desc">تقليل عدد طلبات API (للخطط المجانية)</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="saveMode" onchange="saveSetting('saveMode', this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="t-name">تشكيل النص الصوتي</div>
+          <div class="t-desc">إضافة التشكيل الكامل للحوارات</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="tashkeel" checked onchange="saveSetting('tashkeel', this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🗑️ البيانات</div>
+    <div class="card">
+      <button class="btn-export" style="width:100%; color:var(--accent); border-color:var(--accent);" onclick="clearAllData()">
+        <span>🗑️ حذف جميع البيانات المحفوظة</span>
+      </button>
+      <div style="font-size:11px; color:var(--text3); margin-top:8px; text-align:center;">
+        يحذف كل النتائج والشخصيات ومفاتيح API
+      </div>
+    </div>
+  </div>
+  <div style="height: 24px;"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ===================== PROGRESS OVERLAY ===================== -->
+<div class="progress-overlay" id="progressOverlay">
+  <div class="progress-card">
+    <div class="progress-header">
+      <span class="progress-anim" id="progressAnim">🎬</span>
+      <div class="progress-title" id="progressTitle">جارٍ التوليد...</div>
+      <div class="progress-sub" id="progressSub">يرجى الانتظار</div>
+    </div>
+
+    <div class="progress-steps" id="progressSteps">
+      <div class="step-item" id="step-scenario">
+        <div class="step-icon">✍️</div>
+        <div class="step-info">
+          <div class="step-name">توليد السيناريو</div>
+          <div class="step-detail" id="step-scenario-detail">—</div>
+        </div>
+        <div class="step-status">⏳</div>
+      </div>
+      <div class="step-item" id="step-chars">
+        <div class="step-icon">👤</div>
+        <div class="step-info">
+          <div class="step-name">استخراج الشخصيات</div>
+          <div class="step-detail" id="step-chars-detail">—</div>
+        </div>
+        <div class="step-status">⏳</div>
+      </div>
+      <div class="step-item" id="step-images">
+        <div class="step-icon">🎨</div>
+        <div class="step-info">
+          <div class="step-name">توليد الصور</div>
+          <div class="step-detail" id="step-images-detail">—</div>
+        </div>
+        <div class="step-status">⏳</div>
+      </div>
+      <div class="step-item" id="step-voice">
+        <div class="step-icon">🎙️</div>
+        <div class="step-info">
+          <div class="step-name">تجهيز النص الصوتي</div>
+          <div class="step-detail" id="step-voice-detail">—</div>
+        </div>
+        <div class="step-status">⏳</div>
+      </div>
+      <div class="step-item" id="step-export">
+        <div class="step-icon">📦</div>
+        <div class="step-info">
+          <div class="step-name">تنظيم الحزمة</div>
+          <div class="step-detail" id="step-export-detail">—</div>
+        </div>
+        <div class="step-status">⏳</div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-pct" id="progressPct">0%</div>
+
+    <button onclick="cancelGeneration()" style="width:100%; margin-top:12px; padding:10px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--text3); font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer;">إلغاء</button>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
-if ('serviceWorker' in navigator) {
- navigator.serviceWorker.register('sw.js');
+// ===================== STATE =====================
+const state = {
+  contentType: 'تربوي',
+  ageGroup: '2-4 سنوات',
+  drawingStyle: '2D cartoon, flat design, vibrant colors',
+  aspectRatio: '16:9',
+  refImages: [],
+  episodes: [],
+  characters: [],
+  settings: {},
+  cancelFlag: false,
+  generating: false
+};
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', () => {
+  generateStars();
+  loadSettings();
+  loadSavedData();
+});
+
+function generateStars() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${2+Math.random()*4}s;
+      --delay:${-Math.random()*4}s;
+    `;
+    c.appendChild(s);
+  }
 }
-function go(){ alert("جاهز"); }
+
+// ===================== NAV =====================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name)?.classList.add('active');
+  document.querySelector(`[data-page="${name}"]`)?.classList.add('active');
+}
+
+// ===================== CHOICES =====================
+function selectChoice(btn, key) {
+  const grid = btn.closest('.choice-grid') || btn.closest('.choice-btns');
+  grid?.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state[key] = btn.dataset.val;
+}
+
+// ===================== RANGE =====================
+function updateRange(id, valId, fmt) {
+  const v = document.getElementById(id).value;
+  document.getElementById(valId).textContent = fmt(v);
+}
+
+// ===================== IMAGES =====================
+function handleImageUpload(e) {
+  const files = Array.from(e.target.files);
+  const prev = document.getElementById('uploadPreviews');
+  state.refImages = [];
+  prev.innerHTML = '';
+  files.forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      state.refImages.push(ev.target.result);
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.className = 'preview-img';
+      prev.appendChild(img);
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+// ===================== SETTINGS =====================
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem('cartoonStudio_settings') || '{}');
+    state.settings = s;
+    if (s.anthropic) document.getElementById('apiAnthropic').value = s.anthropic;
+    if (s.huggingface) document.getElementById('apiHuggingFace').value = s.huggingface;
+    if (s.openai) document.getElementById('apiOpenAI').value = s.openai;
+    if (s.autoImages !== undefined) document.getElementById('autoImages').checked = s.autoImages;
+    if (s.saveMode !== undefined) document.getElementById('saveMode').checked = s.saveMode;
+    if (s.tashkeel !== undefined) document.getElementById('tashkeel').checked = s.tashkeel;
+  } catch(e) {}
+}
+
+function saveApiKey(name, val) {
+  state.settings[name] = val;
+  localStorage.setItem('cartoonStudio_settings', JSON.stringify(state.settings));
+}
+function saveSetting(name, val) {
+  state.settings[name] = val;
+  localStorage.setItem('cartoonStudio_settings', JSON.stringify(state.settings));
+}
+
+function toggleVisibility(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+async function testApi(name) {
+  const btn = event.target;
+  btn.className = 'test-btn testing';
+  btn.textContent = '⏳ جارٍ الاختبار...';
+  await new Promise(r => setTimeout(r, 1500));
+  const key = state.settings[name];
+  if (!key) {
+    btn.className = 'test-btn fail';
+    btn.textContent = '❌ لم يتم إدخال المفتاح';
+    return;
+  }
+  // Basic format check
+  const valid = {
+    anthropic: key.startsWith('sk-ant'),
+    huggingface: key.startsWith('hf_'),
+    openai: key.startsWith('sk-')
+  }[name];
+  btn.className = 'test-btn ' + (valid ? 'ok' : 'fail');
+  btn.textContent = valid ? '✅ تنسيق المفتاح صحيح' : '❌ تنسيق المفتاح خاطئ';
+  setTimeout(() => { btn.className = 'test-btn'; btn.textContent = '🔌 اختبار الاتصال'; }, 3000);
+}
+
+function clearAllData() {
+  if (!confirm('هل تريد حذف جميع البيانات المحفوظة؟')) return;
+  localStorage.clear();
+  state.episodes = [];
+  state.characters = [];
+  loadSettings();
+  renderResults();
+  renderCharacters();
+  showToast('تم حذف البيانات بنجاح', 'info');
+}
+
+function loadSavedData() {
+  try {
+    const eps = JSON.parse(localStorage.getItem('cartoonStudio_episodes') || '[]');
+    const chars = JSON.parse(localStorage.getItem('cartoonStudio_chars') || '[]');
+    if (eps.length) { state.episodes = eps; renderResults(); }
+    if (chars.length) { state.characters = chars; renderCharacters(); }
+  } catch(e) {}
+}
+
+// ===================== GENERATION =====================
+let cancelFlag = false;
+let generationAbort = null;
+
+async function startGeneration() {
+  const idea = document.getElementById('storyIdea').value.trim();
+  if (!idea) { showToast('أدخل فكرة المسلسل أولاً', 'error'); return; }
+
+  const apiKey = state.settings.anthropic;
+  if (!apiKey) {
+    showToast('أدخل مفتاح Anthropic API في الإعدادات', 'error');
+    showPage('settings');
+    return;
+  }
+
+  cancelFlag = false;
+  state.generating = true;
+  document.getElementById('progressOverlay').classList.add('active');
+  setProgress(0);
+
+  const epCount = parseInt(document.getElementById('epCount').value);
+  const epDuration = parseInt(document.getElementById('epDuration').value);
+  const scenesPerEp = parseInt(document.getElementById('scenesPerEp').value);
+  const lang = document.getElementById('language').value;
+  const seriesName = document.getElementById('seriesName').value.trim() || 'مسلسلي الكرتوني';
+  const autoImages = state.settings.autoImages !== false;
+  const tashkeel = state.settings.tashkeel !== false;
+
+  // Auto calculate scenes if not set
+  const autoScenes = scenesPerEp === 0 ? Math.max(3, Math.floor(epDuration * 1.5)) : scenesPerEp;
+
+  try {
+    // STEP 1: Generate scenario
+    setStepActive('scenario');
+    document.getElementById('step-scenario-detail').textContent = `${epCount} حلقات × ${epDuration} دقيقة`;
+    setProgress(5);
+
+    const scenarioData = await generateScenario(apiKey, {
+      idea, seriesName, epCount, epDuration, autoScenes, lang,
+      contentType: state.contentType, ageGroup: state.ageGroup, tashkeel
+    });
+    if (cancelFlag) throw new Error('cancelled');
+
+    setStepDone('scenario');
+    setProgress(35);
+
+    // STEP 2: Extract characters
+    setStepActive('chars');
+    document.getElementById('step-chars-detail').textContent = 'استخراج الشخصيات الرئيسية...';
+    const charsData = await extractCharacters(apiKey, scenarioData, state.drawingStyle);
+    if (cancelFlag) throw new Error('cancelled');
+    setStepDone('chars');
+    document.getElementById('step-chars-detail').textContent = `${charsData.length} شخصيات`;
+    setProgress(50);
+
+    // STEP 3: Generate images
+    setStepActive('images');
+    let episodes = scenarioData.episodes;
+    if (autoImages && (state.settings.huggingface || state.settings.openai)) {
+      document.getElementById('step-images-detail').textContent = 'جارٍ التوليد...';
+      episodes = await generateImages(episodes, charsData);
+    } else {
+      document.getElementById('step-images-detail').textContent = 'يمكن التوليد لاحقاً';
+    }
+    if (cancelFlag) throw new Error('cancelled');
+    setStepDone('images');
+    setProgress(75);
+
+    // STEP 4: Voice text
+    setStepActive('voice');
+    document.getElementById('step-voice-detail').textContent = 'تجهيز الحوارات المشكولة...';
+    await new Promise(r => setTimeout(r, 500));
+    setStepDone('voice');
+    setProgress(88);
+
+    // STEP 5: Package
+    setStepActive('export');
+    document.getElementById('step-export-detail').textContent = 'تنظيم الحزمة...';
+    await new Promise(r => setTimeout(r, 400));
+
+    state.episodes = episodes;
+    state.characters = charsData;
+    localStorage.setItem('cartoonStudio_episodes', JSON.stringify(episodes));
+    localStorage.setItem('cartoonStudio_chars', JSON.stringify(charsData));
+
+    setStepDone('export');
+    setProgress(100);
+
+    await new Promise(r => setTimeout(r, 800));
+    document.getElementById('progressOverlay').classList.remove('active');
+    state.generating = false;
+
+    renderResults();
+    renderCharacters();
+    showPage('results');
+    showToast(`✅ تم توليد ${epCount} حلقات بنجاح!`, 'success');
+
+  } catch(err) {
+    document.getElementById('progressOverlay').classList.remove('active');
+    state.generating = false;
+    if (err.message !== 'cancelled') {
+      console.error(err);
+      showToast('حدث خطأ: ' + (err.message || 'تحقق من مفتاح API'), 'error');
+    }
+  }
+}
+
+function cancelGeneration() {
+  cancelFlag = true;
+  document.getElementById('progressOverlay').classList.remove('active');
+  state.generating = false;
+  showToast('تم إلغاء العملية', 'info');
+}
+
+// ===================== AI: SCENARIO =====================
+async function generateScenario(apiKey, opts) {
+  const { idea, seriesName, epCount, epDuration, autoScenes, lang, contentType, ageGroup, tashkeel } = opts;
+  const langLabel = lang === 'ar' ? 'العربية الفصحى البسيطة' : lang === 'fr' ? 'French simple' : 'simple English';
+  const tashkeelNote = tashkeel && lang === 'ar' ? 'اكتب الحوارات بتشكيل كامل.' : '';
+
+  const prompt = `أنت كاتب مسلسلات كرتون أطفال محترف.
+المطلوب: توليد مسلسل كرتوني للأطفال بالكامل.
+
+المعطيات:
+- الفكرة: ${idea}
+- اسم المسلسل: ${seriesName}
+- نوع المحتوى: ${contentType}
+- الفئة العمرية: ${ageGroup}
+- عدد الحلقات: ${epCount}
+- مدة كل حلقة: ${epDuration} دقيقة
+- عدد المشاهد لكل حلقة: ${autoScenes} مشاهد
+- اللغة: ${langLabel}
+${tashkeelNote}
+
+أعطني النتيجة كـ JSON فقط بهذا الشكل بالضبط (لا تضف أي نص خارج الـ JSON):
+{
+  "title": "اسم المسلسل",
+  "logline": "وصف قصير للمسلسل",
+  "episodes": [
+    {
+      "number": 1,
+      "title": "عنوان الحلقة",
+      "summary": "ملخص الحلقة",
+      "scenes": [
+        {
+          "number": 1,
+          "description": "وصف المشهد للرسام",
+          "location": "المكان",
+          "characters": ["الشخصية 1", "الشخصية 2"],
+          "dialogue": [
+            {"character": "اسم الشخصية", "line": "نص الحوار ${tashkeel && lang==='ar' ? 'مُشَكَّلًا' : ''}"}
+          ],
+          "imagePrompt": "English prompt for image generation: ${opts.drawingStyle || '2D cartoon'}, [scene details], children cartoon, safe for kids"
+        }
+      ]
+    }
+  ]
+}`;
+
+  const resp = await callClaude(apiKey, prompt, 4000);
+  let text = resp.content.map(b => b.text || '').join('');
+  text = text.replace(/```json|```/g, '').trim();
+  // Find JSON
+  const jsonStart = text.indexOf('{');
+  const jsonEnd = text.lastIndexOf('}');
+  if (jsonStart === -1) throw new Error('لم يتم الحصول على سيناريو صالح');
+  return JSON.parse(text.slice(jsonStart, jsonEnd + 1));
+}
+
+// ===================== AI: CHARACTERS =====================
+async function extractCharacters(apiKey, scenarioData, drawingStyle) {
+  const scenarioText = JSON.stringify(scenarioData).slice(0, 3000);
+  const prompt = `من السيناريو التالي، استخرج الشخصيات الرئيسية وأنشئ Character Bible لكل شخصية.
+السيناريو: ${scenarioText}
+أسلوب الرسم: ${drawingStyle}
+
+أعطني JSON فقط:
+[
+  {
+    "name": "اسم الشخصية",
+    "nameEn": "Character name in English",
+    "emoji": "رمز مناسب",
+    "role": "البطل/الشرير/المساعد/...",
+    "age": "العمر",
+    "personality": "وصف الشخصية في 2-3 كلمات",
+    "description": "وصف تفصيلي للشخصية بالعربية",
+    "imagePrompt": "Detailed English prompt for consistent character: ${drawingStyle}, [physical appearance, clothes, colors], children cartoon character, full body"
+  }
+]`;
+
+  const resp = await callClaude(apiKey, prompt, 1500);
+  let text = resp.content.map(b => b.text || '').join('');
+  text = text.replace(/```json|```/g, '').trim();
+  const start = text.indexOf('[');
+  const end = text.lastIndexOf(']');
+  if (start === -1) return [];
+  return JSON.parse(text.slice(start, end + 1));
+}
+
+// ===================== AI: IMAGES =====================
+async function generateImages(episodes, chars) {
+  const hfKey = state.settings.huggingface;
+  const oaKey = state.settings.openai;
+  if (!hfKey && !oaKey) return episodes;
+
+  const ratio = state.aspectRatio === '9:16' ? { w: 576, h: 1024 } : { w: 1024, h: 576 };
+
+  for (let ep of episodes) {
+    for (let scene of ep.scenes) {
+      if (cancelFlag) return episodes;
+      try {
+        const url = await generateOneImage(scene.imagePrompt, ratio, hfKey, oaKey);
+        if (url) scene.imageUrl = url;
+      } catch(e) { console.warn('Image failed:', e); }
+      await new Promise(r => setTimeout(r, 800)); // rate limit protection
+    }
+  }
+  return episodes;
+}
+
+async function generateOneImage(prompt, ratio, hfKey, oaKey) {
+  // Try HuggingFace first
+  if (hfKey) {
+    try {
+      const resp = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${hfKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inputs: prompt + ', high quality, vibrant, 4k', parameters: { width: ratio.w, height: ratio.h } })
+      });
+      if (resp.ok) {
+        const blob = await resp.blob();
+        return URL.createObjectURL(blob);
+      }
+    } catch(e) {}
+  }
+  // Fallback: OpenAI DALL-E 3
+  if (oaKey) {
+    try {
+      const size = ratio.w > ratio.h ? '1792x1024' : '1024x1792';
+      const resp = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${oaKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'dall-e-3', prompt, size, quality: 'standard', n: 1 })
+      });
+      const data = await resp.json();
+      return data.data?.[0]?.url;
+    } catch(e) {}
+  }
+  return null;
+}
+
+// ===================== CLAUDE API =====================
+async function callClaude(apiKey, prompt, maxTokens = 2000) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.error?.message || `API Error ${resp.status}`);
+  }
+  return resp.json();
+}
+
+// ===================== PROGRESS HELPERS =====================
+function setProgress(pct) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+function setStepActive(name) {
+  const el = document.getElementById('step-' + name);
+  el.classList.add('active');
+  el.querySelector('.step-status').textContent = '⚡';
+}
+function setStepDone(name) {
+  const el = document.getElementById('step-' + name);
+  el.classList.remove('active');
+  el.classList.add('done');
+  el.querySelector('.step-status').textContent = '✅';
+}
+
+// ===================== RENDER RESULTS =====================
+function renderResults() {
+  const c = document.getElementById('resultsContent');
+  if (!state.episodes.length) {
+    c.innerHTML = `<div class="empty-state"><div class="es-icon">🎬</div><div class="es-title">لا توجد نتائج بعد</div><div class="es-desc">اذهب إلى الاستوديو وأدخل فكرتك<br>ثم اضغط "توليد حزمة الإنتاج"</div></div>`;
+    return;
+  }
+
+  const badge = document.getElementById('epBadge');
+  badge.style.display = 'inline';
+  badge.textContent = state.episodes.length;
+
+  const isPortrait = state.aspectRatio === '9:16';
+
+  let html = `
+    <div class="section">
+      <div class="section-title">📦 تصدير الكل</div>
+      <div class="export-grid">
+        <button class="btn-export primary" onclick="exportAll()">
+          <span>📥</span> تحميل جميع الحلقات ZIP
+        </button>
+        <button class="btn-export" onclick="exportScripts()">
+          <span class="icon">📄</span> السيناريوهات
+        </button>
+        <button class="btn-export" onclick="exportVoice()">
+          <span class="icon">🎙️</span> النصوص الصوتية
+        </button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">🎬 الحلقات</div>
+  `;
+
+  state.episodes.forEach((ep, i) => {
+    html += `
+    <div class="episode-card">
+      <div class="episode-header" onclick="toggleEp(${i})">
+        <div class="ep-num">${ep.number}</div>
+        <div class="ep-info">
+          <div class="ep-title">${ep.title}</div>
+          <div class="ep-meta">${ep.scenes?.length || 0} مشاهد · ${ep.summary?.slice(0,60)}...</div>
+        </div>
+        <div class="ep-chevron" id="chevron-${i}">▼</div>
+      </div>
+      <div class="episode-body" id="epbody-${i}">
+        <div class="section-title" style="margin-top:4px">📋 ملخص</div>
+        <div style="font-size:13px; color:var(--text2); line-height:1.8; margin-bottom:14px">${ep.summary}</div>
+
+        <div class="section-title">🎬 المشاهد</div>
+        <div class="scenes-grid">
+    `;
+
+    ep.scenes?.forEach((sc, si) => {
+      const imgHtml = sc.imageUrl
+        ? `<img src="${sc.imageUrl}" class="scene-img" alt="مشهد ${sc.number}">`
+        : `<div class="scene-img-placeholder"><div class="ph-icon">🖼️</div><div>صورة المشهد</div></div>`;
+
+      const dialogHtml = sc.dialogue?.map(d =>
+        `<div class="scene-dialogue"><div class="scene-char">${d.character}</div><div class="scene-line">${d.line}</div></div>`
+      ).join('') || '';
+
+      html += `
+        <div class="scene-card">
+          <div class="scene-img-wrap ${isPortrait ? 'portrait' : ''}">
+            ${imgHtml}
+            ${!sc.imageUrl ? `<button class="scene-img-gen" onclick="genSingleImage(${i},${si})">🎨 توليد</button>` : ''}
+          </div>
+          <div class="scene-content">
+            <div class="scene-num">مشهد ${sc.number} · ${sc.location || ''}</div>
+            <div class="scene-text">${sc.description}</div>
+            ${dialogHtml}
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+        <div class="section-title" style="margin-top:14px">🎙️ النص الصوتي</div>
+    `;
+
+    ep.scenes?.forEach((sc) => {
+      sc.dialogue?.forEach(d => {
+        html += `
+        <div class="voice-block">
+          <button class="voice-play" onclick="playVoice('${d.line.replace(/'/g,"\\'")}')">▶</button>
+          <div class="voice-text-content"><strong style="color:var(--accent2);font-size:12px">${d.character}:</strong> ${d.line}</div>
+        </div>`;
+      });
+    });
+
+    html += `
+        <div class="section-title" style="margin-top:14px">📥 تصدير الحلقة</div>
+        <div class="export-grid">
+          <button class="btn-export" onclick="exportEpisodeZip(${i})">
+            <span class="icon">📦</span> ZIP الحلقة
+          </button>
+          <button class="btn-export" onclick="exportEpisodeScript(${i})">
+            <span class="icon">📄</span> السيناريو
+          </button>
+          <button class="btn-export" onclick="exportEpisodeImages(${i})">
+            <span class="icon">🖼️</span> الصور
+          </button>
+          <button class="btn-export" onclick="exportEpisodeVoice(${i})">
+            <span class="icon">🎙️</span> الصوت
+          </button>
+        </div>
+      </div>
+    </div>
+    `;
+  });
+
+  html += `</div>`;
+  c.innerHTML = html;
+}
+
+function toggleEp(i) {
+  const body = document.getElementById('epbody-' + i);
+  const chevron = document.getElementById('chevron-' + i);
+  const header = body.previousElementSibling;
+  const isOpen = body.classList.toggle('open');
+  header.classList.toggle('open', isOpen);
+  chevron.classList.toggle('open', isOpen);
+}
+
+// ===================== RENDER CHARACTERS =====================
+function renderCharacters() {
+  const c = document.getElementById('charsContent');
+  if (!state.characters.length) {
+    c.innerHTML = `<div class="empty-state"><div class="es-icon">👤</div><div class="es-title">لا توجد شخصيات بعد</div><div class="es-desc">سيتم استخراج الشخصيات تلقائياً بعد توليد السيناريو</div></div>`;
+    return;
+  }
+  let html = '<div class="section"><div class="section-title">👤 بيبل الشخصيات</div>';
+  state.characters.forEach(ch => {
+    html += `
+    <div class="char-full-card">
+      <div class="char-full-avatar">${ch.emoji || '🧒'}</div>
+      <div class="char-full-info">
+        <div class="char-full-name">${ch.name}</div>
+        <div class="char-tags">
+          <span class="char-tag">${ch.role || ''}</span>
+          <span class="char-tag">${ch.age || ''}</span>
+          <span class="char-tag">${ch.personality || ''}</span>
+        </div>
+        <div class="char-full-desc">${ch.description}</div>
+        <div class="char-prompt-label">🎨 بروميت توليد الصورة:</div>
+        <div class="char-prompt-text">${ch.imagePrompt || ''}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+// ===================== IMAGE GENERATION (SINGLE) =====================
+async function genSingleImage(epIdx, scIdx) {
+  const hfKey = state.settings.huggingface;
+  const oaKey = state.settings.openai;
+  if (!hfKey && !oaKey) {
+    showToast('أدخل مفتاح Hugging Face أو OpenAI', 'error');
+    return;
+  }
+  showToast('⏳ جارٍ توليد الصورة...', 'info');
+  const scene = state.episodes[epIdx].scenes[scIdx];
+  const ratio = state.aspectRatio === '9:16' ? { w: 576, h: 1024 } : { w: 1024, h: 576 };
+  try {
+    const url = await generateOneImage(scene.imagePrompt, ratio, hfKey, oaKey);
+    if (url) {
+      scene.imageUrl = url;
+      localStorage.setItem('cartoonStudio_episodes', JSON.stringify(state.episodes));
+      renderResults();
+      showToast('✅ تم توليد الصورة!', 'success');
+    }
+  } catch(e) { showToast('فشل التوليد: ' + e.message, 'error'); }
+}
+
+// ===================== VOICE (Browser TTS) =====================
+function playVoice(text) {
+  if (!('speechSynthesis' in window)) { showToast('المتصفح لا يدعم TTS', 'error'); return; }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const lang = document.getElementById('language')?.value || 'ar';
+  u.lang = lang === 'ar' ? 'ar-SA' : lang === 'fr' ? 'fr-FR' : 'en-US';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+// ===================== EXPORT =====================
+function downloadText(filename, content) {
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(content);
+  a.download = filename;
+  a.click();
+}
+
+function exportEpisodeScript(i) {
+  const ep = state.episodes[i];
+  let txt = `=== ${ep.title} ===\n\n${ep.summary}\n\n`;
+  ep.scenes?.forEach(sc => {
+    txt += `--- مشهد ${sc.number} (${sc.location}) ---\n${sc.description}\n\n`;
+    sc.dialogue?.forEach(d => txt += `${d.character}: ${d.line}\n`);
+    txt += '\n';
+  });
+  downloadText(`episode_${ep.number}_script.txt`, txt);
+  showToast('✅ تم تحميل السيناريو', 'success');
+}
+
+function exportEpisodeVoice(i) {
+  const ep = state.episodes[i];
+  let txt = `=== نص صوتي: ${ep.title} ===\n\n`;
+  ep.scenes?.forEach(sc => {
+    sc.dialogue?.forEach(d => txt += `[${d.character}]\n${d.line}\n\n`);
+  });
+  downloadText(`episode_${ep.number}_voice.txt`, txt);
+  showToast('✅ تم تحميل النص الصوتي', 'success');
+}
+
+function exportEpisodeImages(i) {
+  const ep = state.episodes[i];
+  let txt = `=== بروميتات صور: ${ep.title} ===\n\n`;
+  ep.scenes?.forEach(sc => txt += `مشهد ${sc.number}:\n${sc.imagePrompt}\n\n`);
+  downloadText(`episode_${ep.number}_prompts.txt`, txt);
+  showToast('✅ تم تحميل البروميتات', 'success');
+}
+
+function exportEpisodeZip(i) {
+  exportEpisodeScript(i);
+  setTimeout(() => exportEpisodeVoice(i), 500);
+  setTimeout(() => exportEpisodeImages(i), 1000);
+  showToast('✅ تم تحميل ملفات الحلقة', 'success');
+}
+
+function exportScripts() {
+  let txt = '';
+  state.episodes.forEach(ep => {
+    txt += `\n\n========================================\nالحلقة ${ep.number}: ${ep.title}\n========================================\n\n${ep.summary}\n\n`;
+    ep.scenes?.forEach(sc => {
+      txt += `--- مشهد ${sc.number} (${sc.location}) ---\n${sc.description}\n\n`;
+      sc.dialogue?.forEach(d => txt += `${d.character}: ${d.line}\n`);
+      txt += '\n';
+    });
+  });
+  downloadText('all_scripts.txt', txt);
+  showToast('✅ تم تحميل جميع السيناريوهات', 'success');
+}
+
+function exportVoice() {
+  let txt = '';
+  state.episodes.forEach(ep => {
+    txt += `\n=== الحلقة ${ep.number}: ${ep.title} ===\n\n`;
+    ep.scenes?.forEach(sc => sc.dialogue?.forEach(d => txt += `[${d.character}]\n${d.line}\n\n`));
+  });
+  downloadText('all_voice_texts.txt', txt);
+  showToast('✅ تم تحميل النصوص الصوتية', 'success');
+}
+
+function exportAll() {
+  exportScripts();
+  setTimeout(() => exportVoice(), 500);
+  showToast('📥 جارٍ تحميل الحزمة الكاملة...', 'info');
+}
+
+// ===================== TOAST =====================
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ===================== SERVICE WORKER =====================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>
